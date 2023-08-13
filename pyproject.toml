@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "aiba-backend"
+version = "0.1.0"
+description = "FastAPI-based backend for AIBA"
+authors = ["Hyunwoo Cho <truetype24@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "aiba_backend"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.101.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
