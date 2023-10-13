@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from starlette.middleware.cors import CORSMiddleware
 
+from app.core import shutdown_event_handler, statup_event_handler
+
 __version__ = "0.1.0"
 
 app_config = {
@@ -13,6 +15,9 @@ app_config = {
 }
 
 app = FastAPI(**app_config)
+
+app.add_event_handler("startup", statup_event_handler(app))
+app.add_event_handler("shutdown", shutdown_event_handler(app))
 
 
 @app.get("/", include_in_schema=False)

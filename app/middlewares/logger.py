@@ -1,11 +1,9 @@
-import logging
 from typing import Any, Callable, Coroutine, Dict
 
 from fastapi.routing import APIRoute
+from loguru import logger
 from starlette.requests import Request
 from starlette.responses import Response
-
-logger = logging.getLogger(__name__)
 
 
 class LoggingMiddleware(APIRoute):
