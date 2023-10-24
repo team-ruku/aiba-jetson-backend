@@ -70,11 +70,11 @@ class YOLOStream:
         self.iou = 0.4
         super().__init__()
 
-    def tensor_to_numpy(self, tensor):
+    def __tensor_to_numpy(self, tensor):
         img = tensor.cpu().numpy().transpose((1, 2, 0))
         return img
 
-    def ava_inference_transform(
+    def __ava_inference_transform(
         self,
         clip,
         boxes,
@@ -115,7 +115,7 @@ class YOLOStream:
 
         return clip, torch.from_numpy(boxes), roi_boxes
 
-    def myPutText(self, src, text, pos, font_size, font_color):
+    def __myPutText(self, src, text, pos, font_size, font_color):
         img_pil = Image.fromarray(src)
         draw = ImageDraw.Draw(img_pil)
 
@@ -126,7 +126,7 @@ class YOLOStream:
 
         return cv2.cvtColor(np.array(img_pil))
 
-    def plot_one_box(
+    def __plot_one_box(
         self,
         x,
         img,
@@ -151,13 +151,13 @@ class YOLOStream:
             img, c1, (c1[0] + int(t_size[0]), c1[1] + int(t_size[1] * 1.45)), color, -1
         )
 
-        # myPutText(
-        #    img,
-        #    text_info,
-        #    (c1[0], c1[1] + t_size[1] + 2),
-        #    fontsize,
-        #    [135, 132, 154],  # 87849A - GRADE6
-        # )
+        self.__myPutText(
+            img,
+            text_info,
+            (c1[0], c1[1] + t_size[1] + 2),
+            fontsize,
+            [135, 132, 154],  # 87849A - GRADE6
+        )
 
         # cv2.putText(
         #    img,
@@ -171,7 +171,7 @@ class YOLOStream:
 
         return img
 
-    def deepsort_update(self, Tracker, pred, xywh, np_img):
+    def __deepsort_update(self, Tracker, pred, xywh, np_img):
         outputs = Tracker.update(
             xywh,
             pred[:, 4:5],
@@ -180,7 +180,7 @@ class YOLOStream:
         )
         return outputs
 
-    def save_yolopreds_tovideo(
+    def __save_yolopreds_tovideo(
         self,
         yolo_preds,
         id_to_ava_labels,
@@ -202,11 +202,11 @@ class YOLOStream:
                     text = "{} {} {}".format(
                         int(trackid), yolo_preds.names[int(cls)], ava_label
                     )
-                    color = color_map[int(cls)]
-                    im = self.plot_one_box(box, im, color, text)
+                    color = [253, 253, 255]
+                    im = self.__plot_one_box(box, im, color, text)
 
             im = im.astype(np.uint8)
-            im = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
+            self.final_frame = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
 
     def main(self):
         imsize = self.imsize
@@ -229,9 +229,9 @@ class YOLOStream:
         id_to_ava_labels = {}
         a = time.time()
 
-        camera_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        camera_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        camera_fps = cap.get(cv2.CAP_PROP_FPS)
+        self.camera_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        self.camera_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        self.camera_fps = cap.get(cv2.CAP_PROP_FPS)
 
         while not cap.end:
             ret, img = cap.read()
@@ -245,7 +245,7 @@ class YOLOStream:
             deepsort_outputs = []
 
             for j in range(len(yolo_preds.pred)):
-                temp = self.deepsort_update(
+                temp = self.__deepsort_update(
                     deepsort_tracker,
                     yolo_preds.pred[j].cpu(),
                     yolo_preds.xywh[j][:, 0:4].cpu(),
@@ -263,7 +263,7 @@ class YOLOStream:
                 clip = cap.get_video_clip()
 
                 if yolo_preds.pred[0].shape[0]:
-                    inputs, inp_boxes, _ = self.ava_inference_transform(
+                    inputs, inp_boxes, _ = self.__ava_inference_transform(
                         clip, yolo_preds.pred[0][:, 0:4], crop_size=imsize
                     )
                     inp_boxes = torch.cat(
@@ -285,7 +285,7 @@ class YOLOStream:
                     ):
                         id_to_ava_labels[tid] = ava_labelnames[avalabel + 1]
 
-            self.save_yolopreds_tovideo(yolo_preds, id_to_ava_labels)
+            self.__save_yolopreds_tovideo(yolo_preds, id_to_ava_labels)
 
         logger.info("YOLO", "Total cost: {:.3f} s".format(time.time() - a))
         cap.release()
