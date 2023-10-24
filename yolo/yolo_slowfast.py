@@ -208,45 +208,44 @@ class YOLOStream:
             im = im.astype(np.uint8)
             self.final_frame = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
 
-    def main(self):
-        imsize = self.imsize
+            return self.final_frame
 
-        model = torch.hub.load("ultralytics/yolov5", "yolov5l6").to(0)
-        model.conf = self.conf
-        model.iou = self.iou
-        model.max_det = 100
+    def setup(self):
+        self.imsize = self.imsize
 
-        video_model = slowfast_r50_detection(True).eval().to(0)
+        self.model = torch.hub.load("ultralytics/yolov5", "yolov5l6").to(0)
+        self.model.conf = self.conf
+        self.model.iou = self.iou
+        self.model.max_det = 100
 
-        deepsort_tracker = DeepSort("deep_sort/deep_sort/deep/checkpoint/ckpt.t7")
-        ava_labelnames, _ = AvaLabeledVideoFramePaths.read_label_map(
+        self.video_model = slowfast_r50_detection(True).eval().to(0)
+
+        self.deepsort_tracker = DeepSort("deep_sort/deep_sort/deep/checkpoint/ckpt.t7")
+        self.ava_labelnames, _ = AvaLabeledVideoFramePaths.read_label_map(
             "selfutils/temp.pbtxt"
         )
 
         logger.info("YOLO", "Starting YOLO-Slowfast instance ...")
 
-        cap = MyVideoCapture(0)
-        id_to_ava_labels = {}
-        a = time.time()
+        self.cap = MyVideoCapture(0)
+        self.id_to_ava_labels = {}
+        self.a = time.time()
 
-        self.camera_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        self.camera_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        self.camera_fps = cap.get(cv2.CAP_PROP_FPS)
-
-        while not cap.end:
-            ret, img = cap.read()
+    def main(self):
+        while not self.cap.end:
+            ret, img = self.cap.read()
 
             if not ret:
                 continue
 
-            yolo_preds = model([img], size=imsize)
+            yolo_preds = self.model([img], size=self.imsize)
             yolo_preds.files = ["img.jpg"]
 
             deepsort_outputs = []
 
             for j in range(len(yolo_preds.pred)):
                 temp = self.__deepsort_update(
-                    deepsort_tracker,
+                    self.deepsort_tracker,
                     yolo_preds.pred[j].cpu(),
                     yolo_preds.xywh[j][:, 0:4].cpu(),
                     yolo_preds.ims[j],
@@ -257,14 +256,14 @@ class YOLOStream:
 
             yolo_preds.pred = deepsort_outputs
 
-            if len(cap.stack) == 25:
-                logger.info("YOLO", f"Processing {cap.idx // 25}th second clips")
+            if len(self.cap.stack) == 25:
+                logger.info("YOLO", f"Processing {self.cap.idx // 25}th second clips")
 
-                clip = cap.get_video_clip()
+                clip = self.cap.get_video_clip()
 
                 if yolo_preds.pred[0].shape[0]:
                     inputs, inp_boxes, _ = self.__ava_inference_transform(
-                        clip, yolo_preds.pred[0][:, 0:4], crop_size=imsize
+                        clip, yolo_preds.pred[0][:, 0:4], crop_size=self.imsize
                     )
                     inp_boxes = torch.cat(
                         [torch.zeros(inp_boxes.shape[0], 1), inp_boxes], dim=1
@@ -276,16 +275,20 @@ class YOLOStream:
                         inputs = inputs.unsqueeze(0).to(0)
 
                     with torch.no_grad():
-                        slowfaster_preds = video_model(inputs, inp_boxes.to(0))
+                        slowfaster_preds = self.video_model(inputs, inp_boxes.to(0))
                         slowfaster_preds = slowfaster_preds.cpu()
 
                     for tid, avalabel in zip(
                         yolo_preds.pred[0][:, 5].tolist(),
                         np.argmax(slowfaster_preds, axis=1).tolist(),
                     ):
-                        id_to_ava_labels[tid] = ava_labelnames[avalabel + 1]
+                        self.id_to_ava_labels[tid] = self.ava_labelnames[avalabel + 1]
 
-            self.__save_yolopreds_tovideo(yolo_preds, id_to_ava_labels)
+            buffer = self.__save_yolopreds_tovideo(yolo_preds, self.id_to_ava_labels)
+            frame = buffer.tobytes()
 
-        logger.info("YOLO", "Total cost: {:.3f} s".format(time.time() - a))
-        cap.release()
+            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+
+    def end_instance(self):
+        logger.info("YOLO", "Total cost: {:.3f} s".format(time.time() - self.a))
+        self.cap.release()
