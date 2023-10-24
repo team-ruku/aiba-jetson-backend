@@ -4,6 +4,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.core import shutdown_event_handler, statup_event_handler
 
+from yolo import YOLOStream
+
 __version__ = "0.1.0"
 
 app_config = {
@@ -18,6 +20,8 @@ app = FastAPI(**app_config)
 
 app.add_event_handler("startup", statup_event_handler(app))
 app.add_event_handler("shutdown", shutdown_event_handler(app))
+
+app.yolo_instance = YOLOStream()
 
 
 @app.get("/", include_in_schema=False)
