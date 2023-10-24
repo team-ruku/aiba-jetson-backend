@@ -10,6 +10,18 @@
 
 ## Usage
 
+실행 전, YOLO-slowfast 환경이 셋팅되어 있어야 함
+
+### Initial Run
+
+```bash
+conda activate {env_name}
+
+pip install -r requirements.txt
+```
+
+### Run
+
 ```bash
 poetry run uvicorn --host=0.0.0 app:app
 ```
