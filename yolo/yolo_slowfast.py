@@ -21,7 +21,7 @@ from pytorchvideo.transforms.functional import (
 )
 from torchvision.transforms._functional_video import normalize
 
-from deep_sort.deep_sort import DeepSort
+from .deep_sort.deep_sort import DeepSort
 
 from loguru import logger
 
@@ -117,12 +117,12 @@ class YOLOStream:
         img_pil = Image.fromarray(src)
         draw = ImageDraw.Draw(img_pil)
 
-        font_path = "./assets/Pretendard-Medium.ttf"
+        font_path = "yolo/assets/Pretendard-Medium.ttf"
         font = ImageFont.truetype(font_path, 10)
 
         draw.text(pos, text, font=font, fill=font_color)
 
-        return cv2.cvtColor(np.array(img_pil))
+        return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
     def __plot_one_box(
         self,
@@ -149,12 +149,12 @@ class YOLOStream:
             img, c1, (c1[0] + int(t_size[0]), c1[1] + int(t_size[1] * 1.45)), color, -1
         )
 
-        self.__myPutText(
+        new_img = self.__myPutText(
             img,
             text_info,
             (c1[0], c1[1] + t_size[1] + 2),
             fontsize,
-            [135, 132, 154],  # 87849A - GRADE6
+            (135, 132, 154),  # 87849A - GRADE6
         )
 
         # cv2.putText(
@@ -167,7 +167,7 @@ class YOLOStream:
         #    fontthickness,
         # )
 
-        return img
+        return new_img
 
     def __deepsort_update(self, Tracker, pred, xywh, np_img):
         outputs = Tracker.update(
@@ -203,9 +203,7 @@ class YOLOStream:
                     color = [253, 253, 255]
                     im = self.__plot_one_box(box, im, color, text)
 
-            im = im.astype(np.uint8)
-            self.final_frame = cv2.cvtColor(im, cv2.COLOR_RGB2BGR)
-
+            self.final_frame = im.astype(np.uint8)
             return self.final_frame
 
     def setup(self):
@@ -285,11 +283,13 @@ class YOLOStream:
                         self.id_to_ava_labels[tid] = self.ava_labelnames[avalabel + 1]
 
             buffer = self.__save_yolopreds_tovideo(yolo_preds, self.id_to_ava_labels)
-            frame = buffer.tobytes()
+            ret, new_buf = cv2.imencode(".jpg", buffer)
 
             yield (
                 b"--frame\r\n"
-                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(frame) + b"\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n"
+                + bytearray(new_buf.tobytes())
+                + b"\r\n"
             )
 
     def end_instance(self):
