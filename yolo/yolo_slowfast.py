@@ -227,7 +227,7 @@ class YOLOStream:
             "yolo/selfutils/temp.pbtxt"
         )
 
-        logger.info("YOLO", "Starting YOLO-Slowfast instance ...")
+        logger.info("[YOLO] Starting YOLO-Slowfast instance ...")
 
         self.cap = MyVideoCapture(0)
         self.id_to_ava_labels = {}
@@ -259,7 +259,7 @@ class YOLOStream:
             yolo_preds.pred = deepsort_outputs
 
             if len(self.cap.stack) == 25:
-                logger.info("YOLO", f"Processing {self.cap.idx // 25}th second clips")
+                logger.info(f"[YOLO] Processing {self.cap.idx // 25}th second clips")
 
                 clip = self.cap.get_video_clip()
 
@@ -295,5 +295,5 @@ class YOLOStream:
             )
 
     def end_instance(self):
-        logger.info("YOLO", "Total cost: {:.3f} s".format(time.time() - self.a))
+        logger.info("[YOLO] Total cost: {:.3f} s".format(time.time() - self.a))
         self.cap.release()
