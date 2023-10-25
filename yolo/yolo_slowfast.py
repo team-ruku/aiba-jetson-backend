@@ -1,4 +1,3 @@
-import argparse
 import math
 import os
 import random
@@ -6,7 +5,6 @@ import time
 import warnings
 
 import cv2
-import ffmpeg
 import numpy as np
 import pytorchvideo
 import torch
@@ -130,7 +128,7 @@ class YOLOStream:
         self,
         x,
         img,
-        # color=[100, 100, 100],
+        color=[100, 100, 100],
         text_info="None",
         velocity=None,
         thickness=1,

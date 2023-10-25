@@ -25,3 +25,11 @@ pip install -r requirements.txt
 ```bash
 poetry run uvicorn --host=0.0.0 app:app
 ```
+
+## Troubleshooting
+
+If CUDA or Pytorch doesn't work, try this
+
+```bash
+pip3 install —pre torch torchvision torchaudio —index-url https://download.pytorch.org/whl/nightly/cu121
+```
