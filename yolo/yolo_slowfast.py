@@ -139,6 +139,36 @@ class YOLOStream:
 
         return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
+    def __pseduo_tdoa(
+        self,
+        x,
+        img,
+        color=[100, 100, 100],
+        text_info="None",
+    ):
+        # Plots one bounding box on image img
+        color = [253, 253, 255]  # FDFDFF - GRADE1
+        c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
+
+        cv2.circle(
+            img, (int((c1[0] + c2[0]) / 2), int((c1[1] + c2[1]) / 2)), 8, color, -1
+        )
+
+        img_pil = Image.fromarray(img)
+        draw = ImageDraw.Draw(img_pil)
+
+        font_path = "yolo/assets/Pretendard-Medium.ttf"
+        font = ImageFont.truetype(font_path, 30)
+
+        draw.text(
+            (int((c1[0] + c2[0]) / 2), int((c1[1] + c2[1]) / 2) + 20),
+            text_info,
+            font=font,
+            fill=(253, 253, 255),
+        )
+
+        return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
+
     def __deepsort_update(self, Tracker, pred, xywh, np_img):
         outputs = Tracker.update(
             xywh,
