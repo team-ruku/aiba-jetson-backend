@@ -220,9 +220,11 @@ class YOLOStream:
 
         self.video_model = slowfast_r50_detection(True).eval().to(0)
 
-        self.deepsort_tracker = DeepSort("deep_sort/deep_sort/deep/checkpoint/ckpt.t7")
+        self.deepsort_tracker = DeepSort(
+            "yolo/deep_sort/deep_sort/deep/checkpoint/ckpt.t7"
+        )
         self.ava_labelnames, _ = AvaLabeledVideoFramePaths.read_label_map(
-            "selfutils/temp.pbtxt"
+            "yolo/selfutils/temp.pbtxt"
         )
 
         logger.info("YOLO", "Starting YOLO-Slowfast instance ...")
@@ -287,7 +289,10 @@ class YOLOStream:
             buffer = self.__save_yolopreds_tovideo(yolo_preds, self.id_to_ava_labels)
             frame = buffer.tobytes()
 
-            yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
+            yield (
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(frame) + b"\r\n"
+            )
 
     def end_instance(self):
         logger.info("YOLO", "Total cost: {:.3f} s".format(time.time() - self.a))

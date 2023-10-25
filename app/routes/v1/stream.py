@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 stream_router = APIRouter()
 
 
-@stream_router.get("/")
+@stream_router.get("/yolo")
 def stream_yolo(request: Request):
     return StreamingResponse(
         request.app.yolo_instance.main(),
