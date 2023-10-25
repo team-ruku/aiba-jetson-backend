@@ -113,61 +113,31 @@ class YOLOStream:
 
         return clip, torch.from_numpy(boxes), roi_boxes
 
-    def __myPutText(self, src, text, pos, font_size, font_color):
-        img_pil = Image.fromarray(src)
-        draw = ImageDraw.Draw(img_pil)
-
-        font_path = "yolo/assets/Pretendard-Medium.ttf"
-        font = ImageFont.truetype(font_path, 10)
-
-        draw.text(pos, text, font=font, fill=font_color)
-
-        return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
-
     def __plot_one_box(
         self,
         x,
         img,
         color=[100, 100, 100],
         text_info="None",
-        velocity=None,
-        thickness=1,
-        fontsize=0.5,
-        fontthickness=1,
     ):
         # Plots one bounding box on image img
         color = [253, 253, 255]  # FDFDFF - GRADE1
         c1, c2 = (int(x[0]), int(x[1])), (int(x[2]), int(x[3]))
 
-        cv2.rectangle(img, c1, c2, color, thickness, lineType=cv2.LINE_AA)
+        cv2.rectangle(img, c1, c2, color, 2, lineType=cv2.LINE_AA)
 
-        t_size = cv2.getTextSize(
-            text_info, cv2.FONT_HERSHEY_TRIPLEX, fontsize, fontthickness + 2
-        )[0]
+        img_pil = Image.fromarray(img)
+        draw = ImageDraw.Draw(img_pil)
 
-        cv2.rectangle(
-            img, c1, (c1[0] + int(t_size[0]), c1[1] + int(t_size[1] * 1.45)), color, -1
-        )
+        font_path = "yolo/assets/Pretendard-Medium.ttf"
+        font = ImageFont.truetype(font_path, 14)
 
-        new_img = self.__myPutText(
-            img,
-            text_info,
-            (c1[0], c1[1] + t_size[1] + 2),
-            fontsize,
-            (135, 132, 154),  # 87849A - GRADE6
-        )
+        l, t, r, b = draw.textbbox((c1[0], c1[1]), text_info, font=font)
+        draw.rectangle((l, t - 5, r + 10, b + 15), fill=(253, 253, 255))
 
-        # cv2.putText(
-        #    img,
-        #    text_info,
-        #    (c1[0], c1[1] + t_size[1] + 2),
-        #    cv2.FONT_HERSHEY_TRIPLEX,
-        #    fontsize,
-        #    [135, 132, 154],  # 87849A - GRADE6
-        #    fontthickness,
-        # )
+        draw.text((c1[0] + 5, c1[1] + 5), text_info, font=font, fill=(135, 132, 154))
 
-        return new_img
+        return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
     def __deepsort_update(self, Tracker, pred, xywh, np_img):
         outputs = Tracker.update(
