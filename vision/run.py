@@ -3,7 +3,6 @@
 import os
 import glob
 import torch
-import utils
 import cv2
 import argparse
 import time
@@ -11,7 +10,9 @@ import time
 import numpy as np
 
 from imutils.video import VideoStream
-from midas.model_loader import default_models, load_model
+
+from .midas.model_loader import default_models, load_model
+from . import utils
 
 from loguru import logger
 
