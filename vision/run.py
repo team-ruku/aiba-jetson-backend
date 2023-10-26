@@ -140,10 +140,10 @@ class VisionDepth:
 
         # select device
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        logger.info("[Vision] Device: %s" % device)
+        logger.info("[Vision] Device: %s" % self.device)
 
         self.model, self.transform, self.net_w, self.net_h = load_model(
-            self.device, model_path, model_type, optimize, height, square
+            self.device, self.model_path, self.model_type, optimize, height, square
         )
 
     def run(
