@@ -203,8 +203,34 @@ class YOLOStream:
                     color = [253, 253, 255]
                     im = self.__plot_one_box(box, im, color, text)
 
-            self.final_frame = im.astype(np.uint8)
-            return self.final_frame
+            self.yolo_final_frame = im.astype(np.uint8)
+            return self.yolo_final_frame
+
+    def __save_tdoapreds_tovideo(
+        self,
+        yolo_preds,
+        id_to_ava_labels,
+    ):
+        for i, (im, pred) in enumerate(zip(yolo_preds.ims, yolo_preds.pred)):
+            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+
+            if pred.shape[0]:
+                for j, (*box, cls, trackid, vx, vy) in enumerate(pred):
+                    if int(cls) != 0:
+                        ava_label = ""
+
+                    elif trackid in id_to_ava_labels.keys():
+                        ava_label = id_to_ava_labels[trackid].split(" ")[0]
+
+                    else:
+                        ava_label = "Unknown"
+
+                    text = "{} {}".format(yolo_preds.names[int(cls)], ava_label)
+                    color = [253, 253, 255]
+                    im = self.__pseduo_tdoa(box, im, color, text)
+
+            self.tdoa_final_frame = im.astype(np.uint8)
+            return self.tdoa_final_frame
 
     def setup(self):
         self.imsize = self.imsize
@@ -236,32 +262,32 @@ class YOLOStream:
             if not ret:
                 continue
 
-            yolo_preds = self.model([img], size=self.imsize)
-            yolo_preds.files = ["img.jpg"]
+            self.yolo_preds = self.model([img], size=self.imsize)
+            self.yolo_preds.files = ["img.jpg"]
 
             deepsort_outputs = []
 
-            for j in range(len(yolo_preds.pred)):
+            for j in range(len(self.yolo_preds.pred)):
                 temp = self.__deepsort_update(
                     self.deepsort_tracker,
-                    yolo_preds.pred[j].cpu(),
-                    yolo_preds.xywh[j][:, 0:4].cpu(),
-                    yolo_preds.ims[j],
+                    self.yolo_preds.pred[j].cpu(),
+                    self.yolo_preds.xywh[j][:, 0:4].cpu(),
+                    self.yolo_preds.ims[j],
                 )
                 if len(temp) == 0:
                     temp = np.ones((0, 8))
                 deepsort_outputs.append(temp.astype(np.float32))
 
-            yolo_preds.pred = deepsort_outputs
+            self.yolo_preds.pred = deepsort_outputs
 
             if len(self.cap.stack) == 25:
                 logger.info(f"[YOLO] Processing {self.cap.idx // 25}th second clips")
 
                 clip = self.cap.get_video_clip()
 
-                if yolo_preds.pred[0].shape[0]:
+                if self.yolo_preds.pred[0].shape[0]:
                     inputs, inp_boxes, _ = self.__ava_inference_transform(
-                        clip, yolo_preds.pred[0][:, 0:4], crop_size=self.imsize
+                        clip, self.yolo_preds.pred[0][:, 0:4], crop_size=self.imsize
                     )
                     inp_boxes = torch.cat(
                         [torch.zeros(inp_boxes.shape[0], 1), inp_boxes], dim=1
@@ -277,12 +303,30 @@ class YOLOStream:
                         slowfaster_preds = slowfaster_preds.cpu()
 
                     for tid, avalabel in zip(
-                        yolo_preds.pred[0][:, 5].tolist(),
+                        self.yolo_preds.pred[0][:, 5].tolist(),
                         np.argmax(slowfaster_preds, axis=1).tolist(),
                     ):
                         self.id_to_ava_labels[tid] = self.ava_labelnames[avalabel + 1]
 
-            buffer = self.__save_yolopreds_tovideo(yolo_preds, self.id_to_ava_labels)
+    def stream_yolo(self):
+        while not self.cap.end:
+            buffer = self.__save_yolopreds_tovideo(
+                self.yolo_preds, self.id_to_ava_labels
+            )
+            ret, new_buf = cv2.imencode(".jpg", buffer)
+
+            yield (
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n"
+                + bytearray(new_buf.tobytes())
+                + b"\r\n"
+            )
+
+    def stream_pseduo_tdoa(self):
+        while not self.cap.end:
+            buffer = self.__save_tdoapreds_tovideo(
+                self.yolo_preds, self.id_to_ava_labels
+            )
             ret, new_buf = cv2.imencode(".jpg", buffer)
 
             yield (

@@ -3,6 +3,8 @@ from typing import Callable
 from fastapi import FastAPI
 from loguru import logger
 
+import threading
+
 
 def statup_event_handler(app: FastAPI) -> Callable:
     def on_startup() -> None:
@@ -10,6 +12,10 @@ def statup_event_handler(app: FastAPI) -> Callable:
 
         logger.info("Initializing YOLO Instance")
         app.yolo_instance.setup()
+
+        logger.info("Starting YOLO processing in background ...")
+        thread = threading.Thread(target=app.yolo_instance.main)
+        thread.start()
 
         logger.info("AIBA backend instance has been started.")
 
