@@ -163,7 +163,7 @@ class YOLOStream:
         l, t, r, b = draw.textbbox((0, 0), text_info, font=font)
 
         draw.text(
-            (int(((c1[0] + c2[0]) / 2) - (r / 2)), int((c1[1] + c2[1]) / 2) + 20),
+            (int(((c1[0] + c2[0]) / 2) - (r / 2)), int((c1[1] + c2[1]) / 2) + 14),
             text_info,
             font=font,
             fill=(253, 253, 255),
