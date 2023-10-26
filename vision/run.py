@@ -168,7 +168,7 @@ class VisionDepth:
 
         with torch.no_grad():
             fps = 1
-            video = VideoStream(0).start()
+            video = VideoStream(-1).start()
             time_start = time.time()
             frame_index = 0
 
