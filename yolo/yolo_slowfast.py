@@ -72,7 +72,7 @@ class YOLOStream:
         img = tensor.cpu().numpy().transpose((1, 2, 0))
         return img
 
-    def __ava_inference_transform(
+    def ava_inference_transform(
         self,
         clip,
         boxes,
@@ -113,7 +113,7 @@ class YOLOStream:
 
         return clip, torch.from_numpy(boxes), roi_boxes
 
-    def __plot_one_box(
+    def plot_one_box(
         self,
         x,
         img,
@@ -139,7 +139,7 @@ class YOLOStream:
 
         return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
-    def __pseduo_tdoa(
+    def pseduo_tdoa(
         self,
         x,
         img,
@@ -171,7 +171,7 @@ class YOLOStream:
 
         return cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
 
-    def __deepsort_update(self, Tracker, pred, xywh, np_img):
+    def deepsort_update(self, Tracker, pred, xywh, np_img):
         outputs = Tracker.update(
             xywh,
             pred[:, 4:5],
@@ -180,7 +180,7 @@ class YOLOStream:
         )
         return outputs
 
-    def __save_preds_tovideo(
+    def save_preds_tovideo(
         self,
         yolo_preds,
         id_to_ava_labels,

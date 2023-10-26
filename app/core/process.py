@@ -42,7 +42,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
                 deepsort_outputs = []
 
                 for j in range(len(self.yolo_preds.pred)):
-                    temp = self.__deepsort_update(
+                    temp = self.deepsort_update(
                         self.deepsort_tracker,
                         self.yolo_preds.pred[j].cpu(),
                         self.yolo_preds.xywh[j][:, 0:4].cpu(),
@@ -62,7 +62,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
                     clip = self.cap.get_video_clip()
 
                     if self.yolo_preds.pred[0].shape[0]:
-                        inputs, inp_boxes, _ = self.__ava_inference_transform(
+                        inputs, inp_boxes, _ = self.ava_inference_transform(
                             clip, self.yolo_preds.pred[0][:, 0:4], crop_size=self.imsize
                         )
                         inp_boxes = torch.cat(
@@ -128,7 +128,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
 
                         frame_index += 1
 
-                buffer = self.__save_preds_tovideo(
+                buffer = self.save_preds_tovideo(
                     self.yolo_preds, self.id_to_ava_labels, args, self.content
                 )
                 ret, new_buf = cv2.imencode(".jpg", buffer)
