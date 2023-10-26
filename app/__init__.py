@@ -2,11 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from starlette.middleware.cors import CORSMiddleware
 
-from app.core import shutdown_event_handler, statup_event_handler
-
-from yolo import YOLOStream
-
-from vision.run import VisionDepth
+from app.core import shutdown_event_handler, statup_event_handler, AIBAProcess
 
 from app.routes.v1 import v1_router
 
@@ -25,8 +21,7 @@ app = FastAPI(**app_config)
 app.add_event_handler("startup", statup_event_handler(app))
 app.add_event_handler("shutdown", shutdown_event_handler(app))
 
-app.yolo_instance = YOLOStream()
-app.vision_instance = VisionDepth()
+app.processor = AIBAProcess()
 
 app.include_router(v1_router, prefix="/v1")
 

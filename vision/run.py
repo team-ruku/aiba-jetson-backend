@@ -135,15 +135,22 @@ class VisionDepth:
     ):
         logger.info("[Vision] Initializing")
 
-        self.model_path = "vision/weights/dpt_swin2_tiny_256.pt"
-        self.model_type = "dpt_swin2_tiny_256"
+        self.vision_model_path = "vision/weights/dpt_swin2_tiny_256.pt"
+        self.vision_model_type = "dpt_swin2_tiny_256"
 
         # select device
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        logger.info("[Vision] Device: %s" % self.device)
+        self.vision_device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
+        logger.info("[Vision] Device: %s" % self.vision_device)
 
-        self.model, self.transform, self.net_w, self.net_h = load_model(
-            self.device, self.model_path, self.model_type, optimize, height, square
+        self.vision_model, self.transform, self.net_w, self.net_h = load_model(
+            self.vision_device,
+            self.vision_model_path,
+            self.vision_model_type,
+            optimize,
+            height,
+            square,
         )
 
     def run(

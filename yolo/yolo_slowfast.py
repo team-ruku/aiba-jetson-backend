@@ -185,9 +185,14 @@ class YOLOStream:
         yolo_preds,
         id_to_ava_labels,
         args: str,
+        vision_frame,
     ):
         for i, (im, pred) in enumerate(zip(yolo_preds.ims, yolo_preds.pred)):
-            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+            if args == "TDOA":
+                im = cv2.cvtColor(vision_frame, cv2.COLOR_BGR2RGB)
+
+            else:
+                im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
 
             if pred.shape[0]:
                 for j, (*box, cls, trackid, vx, vy) in enumerate(pred):
@@ -222,10 +227,10 @@ class YOLOStream:
     def setup(self):
         self.imsize = self.imsize
 
-        self.model = torch.hub.load("ultralytics/yolov5", "yolov5l6").to(0)
-        self.model.conf = self.conf
-        self.model.iou = self.iou
-        self.model.max_det = 100
+        self.yolo_model = torch.hub.load("ultralytics/yolov5", "yolov5l6").to(0)
+        self.yolo_model.conf = self.conf
+        self.yolo_model.iou = self.iou
+        self.yolo_model.max_det = 100
 
         self.video_model = slowfast_r50_detection(True).eval().to(0)
 
@@ -249,7 +254,7 @@ class YOLOStream:
             if not ret:
                 continue
 
-            self.yolo_preds = self.model([img], size=self.imsize)
+            self.yolo_preds = self.yolo_model([img], size=self.imsize)
             self.yolo_preds.files = ["img.jpg"]
 
             deepsort_outputs = []
