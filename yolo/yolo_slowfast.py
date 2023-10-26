@@ -227,6 +227,8 @@ class YOLOStream:
     def setup(self):
         self.imsize = self.imsize
 
+        logger.info("[YOLO] Starting YOLO-Slowfast instance ...")
+
         self.yolo_model = torch.hub.load("ultralytics/yolov5", "yolov5l6").to(0)
         self.yolo_model.conf = self.conf
         self.yolo_model.iou = self.iou
@@ -240,8 +242,6 @@ class YOLOStream:
         self.ava_labelnames, _ = AvaLabeledVideoFramePaths.read_label_map(
             "yolo/selfutils/temp.pbtxt"
         )
-
-        logger.info("[YOLO] Starting YOLO-Slowfast instance ...")
 
         self.cap = MyVideoCapture(0)
         self.id_to_ava_labels = {}

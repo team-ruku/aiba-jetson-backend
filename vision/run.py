@@ -70,7 +70,7 @@ class VisionDepth:
 
             if optimize and device == torch.device("cuda"):
                 if first_execution:
-                    print(
+                    logger.info(
                         "  Optimization to half-floats activated. Use with caution, because models like Swin require\n"
                         "  float precision to work properly and may yield non-finite depth values to some extent for\n"
                         "  half-floats."
@@ -80,8 +80,8 @@ class VisionDepth:
 
             if first_execution or not use_camera:
                 height, width = sample.shape[2:]
-                print(
-                    f"    Input resized to {width}x{height} before entering the encoder"
+                logger.info(
+                    f"[Vision] Input resized to {width}x{height} before entering the encoder"
                 )
                 first_execution = False
 
@@ -213,7 +213,7 @@ class VisionDepth:
                             time.time() - time_start
                         )  # exponential moving average
                         time_start = time.time()
-                    logger.info(f"[Vision] \rFPS: {round(fps,2)}", end="")
+                    logger.info(f"[Vision] FPS: {round(fps,2)}")
 
                     if cv2.waitKey(1) == 27:  # Escape key
                         break
