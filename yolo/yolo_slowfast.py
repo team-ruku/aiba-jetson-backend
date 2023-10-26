@@ -178,38 +178,11 @@ class YOLOStream:
         )
         return outputs
 
-    def __save_yolopreds_tovideo(
+    def __save_preds_tovideo(
         self,
         yolo_preds,
         id_to_ava_labels,
-    ):
-        for i, (im, pred) in enumerate(zip(yolo_preds.ims, yolo_preds.pred)):
-            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
-
-            if pred.shape[0]:
-                for j, (*box, cls, trackid, vx, vy) in enumerate(pred):
-                    if int(cls) != 0:
-                        ava_label = ""
-
-                    elif trackid in id_to_ava_labels.keys():
-                        ava_label = id_to_ava_labels[trackid].split(" ")[0]
-
-                    else:
-                        ava_label = "Unknown"
-
-                    text = "{} {} {}".format(
-                        int(trackid), yolo_preds.names[int(cls)], ava_label
-                    )
-                    color = [253, 253, 255]
-                    im = self.__plot_one_box(box, im, color, text)
-
-            self.yolo_final_frame = im.astype(np.uint8)
-            return self.yolo_final_frame
-
-    def __save_tdoapreds_tovideo(
-        self,
-        yolo_preds,
-        id_to_ava_labels,
+        args: str,
     ):
         for i, (im, pred) in enumerate(zip(yolo_preds.ims, yolo_preds.pred)):
             im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
@@ -227,10 +200,15 @@ class YOLOStream:
 
                     text = "{} {}".format(yolo_preds.names[int(cls)], ava_label)
                     color = [253, 253, 255]
-                    im = self.__pseduo_tdoa(box, im, color, text)
 
-            self.tdoa_final_frame = im.astype(np.uint8)
-            return self.tdoa_final_frame
+                    if args == "YOLO":
+                        im = self.__plot_one_box(box, im, color, text)
+
+                    else:
+                        im = self.__pseduo_tdoa(box, im, color, text)
+
+            self.final_frame = im.astype(np.uint8)
+            return self.final_frame
 
     def setup(self):
         self.imsize = self.imsize
@@ -308,16 +286,9 @@ class YOLOStream:
                     ):
                         self.id_to_ava_labels[tid] = self.ava_labelnames[avalabel + 1]
 
-            if args == "YOLO":
-                buffer = self.__save_yolopreds_tovideo(
-                    self.yolo_preds, self.id_to_ava_labels
-                )
-
-            else:
-                buffer = self.__save_tdoapreds_tovideo(
-                    self.yolo_preds, self.id_to_ava_labels
-                )
-
+            buffer = self.__save_preds_tovideo(
+                self.yolo_preds, self.id_to_ava_labels, args
+            )
             ret, new_buf = cv2.imencode(".jpg", buffer)
 
             yield (
