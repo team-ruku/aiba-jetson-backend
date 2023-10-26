@@ -154,7 +154,10 @@ class YOLOStream:
             img, (int((c1[0] + c2[0]) / 2), int((c1[1] + c2[1]) / 2)), 8, color, -1
         )
 
-        img_pil = Image.fromarray(img)
+        random_array = np.random.random_sample(img.shape) * 255
+        random_array = random_array.astype(np.uint8)
+
+        img_pil = Image.fromarray(random_array)
         draw = ImageDraw.Draw(img_pil)
 
         font_path = "yolo/assets/Pretendard-Medium.ttf"
