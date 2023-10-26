@@ -255,7 +255,7 @@ class YOLOStream:
         self.id_to_ava_labels = {}
         self.a = time.time()
 
-    def main(self):
+    def main(self, args: str):
         while not self.cap.end:
             ret, img = self.cap.read()
 
@@ -308,25 +308,16 @@ class YOLOStream:
                     ):
                         self.id_to_ava_labels[tid] = self.ava_labelnames[avalabel + 1]
 
-    def stream_yolo(self):
-        while not self.cap.end:
-            buffer = self.__save_yolopreds_tovideo(
-                self.yolo_preds, self.id_to_ava_labels
-            )
-            ret, new_buf = cv2.imencode(".jpg", buffer)
+            if args == "YOLO":
+                buffer = self.__save_yolopreds_tovideo(
+                    self.yolo_preds, self.id_to_ava_labels
+                )
 
-            yield (
-                b"--frame\r\n"
-                b"Content-Type: image/jpeg\r\n\r\n"
-                + bytearray(new_buf.tobytes())
-                + b"\r\n"
-            )
+            else:
+                buffer = self.__save_tdoapreds_tovideo(
+                    self.yolo_preds, self.id_to_ava_labels
+                )
 
-    def stream_pseduo_tdoa(self):
-        while not self.cap.end:
-            buffer = self.__save_tdoapreds_tovideo(
-                self.yolo_preds, self.id_to_ava_labels
-            )
             ret, new_buf = cv2.imencode(".jpg", buffer)
 
             yield (
