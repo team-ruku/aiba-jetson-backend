@@ -160,8 +160,10 @@ class YOLOStream:
         font_path = "yolo/assets/Pretendard-Medium.ttf"
         font = ImageFont.truetype(font_path, 30)
 
+        l, t, r, b = draw.textbbox((0, 0), text_info, font=font)
+
         draw.text(
-            (int((c1[0] + c2[0]) / 2), int((c1[1] + c2[1]) / 2) + 20),
+            (int(((c1[0] + c2[0]) / 2) - (r / 2)), int((c1[1] + c2[1]) / 2) + 20),
             text_info,
             font=font,
             fill=(253, 253, 255),
@@ -198,14 +200,21 @@ class YOLOStream:
                     else:
                         ava_label = "Unknown"
 
-                    text = "{} {}".format(yolo_preds.names[int(cls)], ava_label)
-                    color = [253, 253, 255]
-
                     if args == "YOLO":
-                        im = self.__plot_one_box(box, im, color, text)
+                        im = self.__plot_one_box(
+                            box,
+                            im,
+                            [253, 253, 255],
+                            "{} {}".format(yolo_preds.names[int(cls)], ava_label),
+                        )
 
                     else:
-                        im = self.__pseduo_tdoa(box, im, color, text)
+                        im = self.__pseduo_tdoa(
+                            box,
+                            im,
+                            [253, 253, 255],
+                            "{}".format(yolo_preds.names[int(cls)]),
+                        )
 
             self.final_frame = im.astype(np.uint8)
             return self.final_frame
