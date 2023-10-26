@@ -111,11 +111,8 @@ class AIBAProcess(YOLOStream, VisionDepth):
                         original_image_bgr = (
                             np.flip(original_image_rgb, 2) if side else None
                         )
-                        self.content = (
-                            self.create_side_by_side(
-                                original_image_bgr, prediction, grayscale
-                            )
-                            / 255
+                        self.content = self.create_side_by_side(
+                            original_image_bgr, prediction, grayscale
                         )
 
                         alpha = 0.1

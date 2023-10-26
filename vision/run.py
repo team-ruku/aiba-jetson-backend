@@ -122,6 +122,8 @@ class VisionDepth:
         if not grayscale:
             right_side = cv2.applyColorMap(np.uint8(right_side), cv2.COLORMAP_INFERNO)
 
+        return right_side
+
         if image is None:
             return right_side
         else:

@@ -154,10 +154,7 @@ class YOLOStream:
             img, (int((c1[0] + c2[0]) / 2), int((c1[1] + c2[1]) / 2)), 8, color, -1
         )
 
-        random_array = np.random.random_sample(img.shape) * 255
-        random_array = random_array.astype(np.uint8)
-
-        img_pil = Image.fromarray(random_array)
+        img_pil = Image.fromarray(img)
         draw = ImageDraw.Draw(img_pil)
 
         font_path = "yolo/assets/Pretendard-Medium.ttf"
@@ -192,7 +189,7 @@ class YOLOStream:
     ):
         for i, (im, pred) in enumerate(zip(yolo_preds.ims, yolo_preds.pred)):
             if args == "TDOA":
-                im = cv2.cvtColor(np.float32(vision_frame), cv2.COLOR_BGR2RGB)
+                im = cv2.cvtColor(vision_frame, cv2.COLOR_BGR2RGB)
 
             else:
                 im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
