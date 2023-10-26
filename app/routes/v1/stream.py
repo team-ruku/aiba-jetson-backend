@@ -18,3 +18,11 @@ def stream_yolo(request: Request):
         request.app.yolo_instance.main(args="TDOA"),
         media_type="multipart/x-mixed-replace; boundary=frame",
     )
+
+
+@stream_router.get("/vision")
+def stream_yolo(request: Request):
+    return StreamingResponse(
+        request.app.vision_instance.run(),
+        media_type="multipart/x-mixed-replace; boundary=frame",
+    )

@@ -13,6 +13,9 @@ def statup_event_handler(app: FastAPI) -> Callable:
         logger.info("Initializing YOLO Instance")
         app.yolo_instance.setup()
 
+        logger.info("Initializing Vision Instance")
+        app.vision_instance.initialize()
+
         logger.info("AIBA backend instance has been started.")
 
     return on_startup
