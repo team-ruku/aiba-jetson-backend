@@ -98,7 +98,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
                         ]
 
                         prediction = self.process(
-                            self.vision_devicedevice,
+                            self.vision_device,
                             self.vision_model,
                             self.vision_model_typemodel_type,
                             image,

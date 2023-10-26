@@ -206,7 +206,7 @@ class YOLOStream:
                         ava_label = "Unknown"
 
                     if args == "YOLO":
-                        im = self.__plot_one_box(
+                        im = self.plot_one_box(
                             box,
                             im,
                             [253, 253, 255],
@@ -214,7 +214,7 @@ class YOLOStream:
                         )
 
                     else:
-                        im = self.__pseduo_tdoa(
+                        im = self.pseduo_tdoa(
                             box,
                             im,
                             [253, 253, 255],
