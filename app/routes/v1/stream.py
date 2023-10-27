@@ -18,3 +18,11 @@ def stream_yolo(request: Request):
         request.app.processor.start_process(args="TDOA"),
         media_type="multipart/x-mixed-replace; boundary=frame",
     )
+
+
+@stream_router.get("/list")
+def stream_yolo(request: Request):
+    return StreamingResponse(
+        request.app.processor.return_text(),
+        media_type="text/plain",
+    )

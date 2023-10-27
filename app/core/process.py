@@ -25,6 +25,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
         side=False,
         grayscale=False,
     ):
+        self.current_list = []
         with torch.no_grad():
             fps = 1
             time_start = time.time()
@@ -136,6 +137,10 @@ class AIBAProcess(YOLOStream, VisionDepth):
                     + bytearray(new_buf.tobytes())
                     + b"\r\n"
                 )
+
+    def return_text(self):
+        while not self.cap.end:
+            yield self.current_list
 
     def on_shutdown(self):
         self.end_instance()

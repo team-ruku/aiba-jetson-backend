@@ -66,6 +66,8 @@ class YOLOStream:
         self.imsize = 640
         self.conf = 0.4
         self.iou = 0.4
+
+        self.current_list = []
         super().__init__()
 
     def __tensor_to_numpy(self, tensor):
@@ -205,7 +207,7 @@ class YOLOStream:
                     else:
                         ava_label = "Unknown"
 
-                    logger.info(yolo_preds.names[int(cls)])
+                    self.current_list.append(yolo_preds.names[int(cls)])
 
                     if args == "YOLO":
                         im = self.plot_one_box(
