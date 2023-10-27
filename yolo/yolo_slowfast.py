@@ -205,6 +205,8 @@ class YOLOStream:
                     else:
                         ava_label = "Unknown"
 
+                    logger.info(yolo_preds.names[int(cls)])
+
                     if args == "YOLO":
                         im = self.plot_one_box(
                             box,
