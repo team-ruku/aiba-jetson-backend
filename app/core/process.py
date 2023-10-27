@@ -140,7 +140,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
 
     def return_text(self):
         while not self.cap.end:
-            yield self.current_list
+            yield ",".join(self.current_list)
 
     def on_shutdown(self):
         self.end_instance()
