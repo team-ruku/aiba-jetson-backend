@@ -6,7 +6,7 @@
 
 이 백엔드 Instance는 YOLO 및 Monocular Depth Estimation + TDoA 비디오 스트림을 위한 하드웨어용 백엔드입니다.
 
-CUDA (엔비디아) 외 Apple Silicon (MPS) 또한 지원하나, Apple Silicon 환경에서의 YOLO-slowfast 구동은 CPU를 이용하니(#1), **CUDA 구동을 권장합니다.**
+CUDA (엔비디아) 외 Apple Silicon (MPS) 또한 지원하나, Apple Silicon 환경에서의 YOLO-slowfast 구동은 CPU를 이용하니 ([#1](../../issues/1)), **CUDA 구동을 권장합니다.**
 
 ## Usage
 
