@@ -14,7 +14,7 @@ class Extractor(object):
 
         accel_device = "cpu"
         if use_cuda and torch.cuda.is_available():
-            accel_device = "0"
+            accel_device = "cuda:0"
 
         self.device = accel_device
         state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)[
