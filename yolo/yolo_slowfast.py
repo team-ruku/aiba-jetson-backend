@@ -298,13 +298,15 @@ class YOLOStream:
                     )
 
                     if isinstance(inputs, list):
-                        inputs = [inp.unsqueeze(0).to(0) for inp in inputs]
+                        inputs = [
+                            inp.unsqueeze(0).to(get_accel_device()) for inp in inputs
+                        ]
                     else:
-                        inputs = inputs.unsqueeze(0).to(0)
+                        inputs = inputs.unsqueeze(0).to(get_accel_device())
 
                     with torch.no_grad():
                         slowfaster_preds = self.video_model(inputs, inp_boxes.to(0))
-                        slowfaster_preds = slowfaster_preds.cpu()
+                        slowfaster_preds = slowfaster_preds.to(get_accel_device())
 
                     for tid, avalabel in zip(
                         self.yolo_preds.pred[0][:, 5].tolist(),

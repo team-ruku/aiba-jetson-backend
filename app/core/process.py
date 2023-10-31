@@ -9,6 +9,8 @@ from yolo import YOLOStream
 
 from vision.run import VisionDepth
 
+from app.utils import get_accel_device
+
 
 class AIBAProcess(YOLOStream, VisionDepth):
     def __init__(self):
@@ -71,13 +73,28 @@ class AIBAProcess(YOLOStream, VisionDepth):
                         )
 
                         if isinstance(inputs, list):
-                            inputs = [inp.unsqueeze(0).to(0) for inp in inputs]
+                            inputs = [
+                                inp.unsqueeze(0).to(get_accel_device())
+                                for inp in inputs
+                            ]
                         else:
-                            inputs = inputs.unsqueeze(0).to(0)
+                            inputs = inputs.unsqueeze(0).to(get_accel_device())
 
-                        with torch.no_grad():
-                            slowfaster_preds = self.video_model(inputs, inp_boxes.to(0))
-                            slowfaster_preds = slowfaster_preds.cpu()
+                        try:  # failback for Apple Silicon
+                            with torch.no_grad():
+                                slowfaster_preds = self.video_model(
+                                    inputs, inp_boxes.to(get_accel_device())
+                                )
+                                slowfaster_preds = slowfaster_preds.to(
+                                    get_accel_device()
+                                )
+
+                        except RuntimeError:
+                            with torch.no_grad():
+                                slowfaster_preds = self.video_model(
+                                    inputs, inp_boxes.to("cpu")
+                                )
+                                slowfaster_preds = slowfaster_preds.to("cpu")
 
                         for tid, avalabel in zip(
                             self.yolo_preds.pred[0][:, 5].tolist(),

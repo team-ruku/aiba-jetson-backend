@@ -1,12 +1,12 @@
-# AIBA Backend
+# AIBA Backend for Standalone-Hardware
 
-> FastAPI-based AIBA Backend
+> FastAPI-based AIBA Backend for Standalone-Hardware
 
 ## Disclaimer
 
-이 백엔드 Instance는 YOLO 및 Monocular Depth Estimation 비디오 스트림과 장치 등록 등을 위한 중간 단계용 백엔드입니다.
+이 백엔드 Instance는 YOLO 및 Monocular Depth Estimation + TDoA 비디오 스트림을 위한 하드웨어용 백엔드입니다.
 
-오로지 테스트 목적을 위한 것이기에, 아무런 User Authentication (JWT Token, Bearer Auth 등) 이 없습니다.
+CUDA (엔비디아) 외 Apple Silicon (MPS) 또한 지원하나, MPS 구동은 **굉장히 불안정하니 CUDA 환경에서의 구동을 권장합니다.**
 
 ## Usage
 
@@ -15,7 +15,7 @@
 ### Initial Run
 
 ```bash
-conda activate {env_name}
+conda create -n {your_env_name} python=3.9
 
 pip install -r requirements.txt
 ```
@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ### Run
 
 ```bash
-poetry run uvicorn --host=0.0.0 app:app
+uvicorn --host=0.0.0.0 app:app
 ```
 
 ## Troubleshooting
@@ -32,4 +32,10 @@ If CUDA or Pytorch doesn't work, try this
 
 ```bash
 pip3 install —pre torch torchvision torchaudio —index-url https://download.pytorch.org/whl/nightly/cu121
+```
+
+When PyTorch Apple Silicon backend (MPS) doesn't work, add this variable
+
+```bash
+conda env config vars set PYTORCH_ENABLE_MPS_FALLBACK=1
 ```
