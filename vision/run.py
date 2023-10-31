@@ -14,6 +14,8 @@ from imutils.video import VideoStream
 from .midas.model_loader import default_models, load_model
 from . import utils
 
+from app.utils import get_accel_device
+
 from loguru import logger
 
 first_execution = True
@@ -141,9 +143,7 @@ class VisionDepth:
         self.vision_model_type = "dpt_swin2_tiny_256"
 
         # select device
-        self.vision_device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
+        self.vision_device = torch.device(get_accel_device())
         logger.info("[Vision] Device: %s" % self.vision_device)
 
         self.vision_model, self.transform, self.net_w, self.net_h = load_model(

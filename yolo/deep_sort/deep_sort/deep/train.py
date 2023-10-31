@@ -9,6 +9,7 @@ import torch.backends.cudnn as cudnn
 import torchvision
 
 from .model import Net
+from app.utils import get_accel_device
 
 parser = argparse.ArgumentParser(description="Train on market1501")
 parser.add_argument("--data-dir", default="data", type=str)
@@ -20,11 +21,7 @@ parser.add_argument("--resume", "-r", action="store_true")
 args = parser.parse_args()
 
 # device
-device = (
-    "cuda:{}".format(args.gpu_id)
-    if torch.cuda.is_available() and not args.no_cuda
-    else "cpu"
-)
+device = get_accel_device()
 if torch.cuda.is_available() and not args.no_cuda:
     cudnn.benchmark = True
 

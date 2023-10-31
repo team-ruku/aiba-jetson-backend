@@ -25,6 +25,8 @@ from .deep_sort.deep_sort import DeepSort
 
 from loguru import logger
 
+from app.utils import get_accel_device
+
 
 class MyVideoCapture:
     def __init__(self, source):
@@ -233,12 +235,18 @@ class YOLOStream:
 
         logger.info("[YOLO] Starting YOLO-Slowfast instance ...")
 
-        self.yolo_model = torch.hub.load("ultralytics/yolov5", "yolov5l6").to(0)
+        self.yolo_device = torch.device(get_accel_device())
+        self.yolo_model = torch.hub.load(
+            "ultralytics/yolov5",
+            "yolov5s",
+            device=get_accel_device(),
+            force_reload=True,
+        ).to(get_accel_device())
         self.yolo_model.conf = self.conf
         self.yolo_model.iou = self.iou
         self.yolo_model.max_det = 100
 
-        self.video_model = slowfast_r50_detection(True).eval().to(0)
+        self.video_model = slowfast_r50_detection(True).eval().to(get_accel_device())
 
         self.deepsort_tracker = DeepSort(
             "yolo/deep_sort/deep_sort/deep/checkpoint/ckpt.t7"
