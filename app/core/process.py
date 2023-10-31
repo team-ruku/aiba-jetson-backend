@@ -122,7 +122,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
                                 time.time() - time_start
                             )  # exponential moving average
                             time_start = time.time()
-                        logger.info(f"[Vision] \rFPS: {round(fps,2)}", end="")
+                        logger.info(f"[Vision] FPS: {round(fps,2)}")
 
                         frame_index += 1
 
