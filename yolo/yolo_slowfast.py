@@ -240,13 +240,18 @@ class YOLOStream:
             "ultralytics/yolov5",
             "yolov5s",
             device=get_accel_device(),
-            force_reload=True,
         ).to(get_accel_device())
         self.yolo_model.conf = self.conf
         self.yolo_model.iou = self.iou
         self.yolo_model.max_det = 100
 
-        self.video_model = slowfast_r50_detection(True).eval().to(get_accel_device())
+        if not torch.cuda.is_available():
+            self.video_model = slowfast_r50_detection(True).eval().to("cpu")
+
+        else:
+            self.video_model = (
+                slowfast_r50_detection(True).eval().to(get_accel_device())
+            )
 
         self.deepsort_tracker = DeepSort(
             "yolo/deep_sort/deep_sort/deep/checkpoint/ckpt.t7"

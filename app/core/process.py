@@ -71,16 +71,15 @@ class AIBAProcess(YOLOStream, VisionDepth):
                         inp_boxes = torch.cat(
                             [torch.zeros(inp_boxes.shape[0], 1), inp_boxes], dim=1
                         )
-
-                        if isinstance(inputs, list):
-                            inputs = [
-                                inp.unsqueeze(0).to(get_accel_device())
-                                for inp in inputs
-                            ]
-                        else:
-                            inputs = inputs.unsqueeze(0).to(get_accel_device())
-
                         try:  # failback for Apple Silicon
+                            if isinstance(inputs, list):
+                                inputs = [
+                                    inp.unsqueeze(0).to(get_accel_device())
+                                    for inp in inputs
+                                ]
+                            else:
+                                inputs = inputs.unsqueeze(0).to(get_accel_device())
+
                             with torch.no_grad():
                                 slowfaster_preds = self.video_model(
                                     inputs, inp_boxes.to(get_accel_device())
@@ -90,6 +89,11 @@ class AIBAProcess(YOLOStream, VisionDepth):
                                 )
 
                         except RuntimeError:
+                            if isinstance(inputs, list):
+                                inputs = [inp.unsqueeze(0).to("cpu") for inp in inputs]
+                            else:
+                                inputs = inputs.unsqueeze(0).to("cpu")
+
                             with torch.no_grad():
                                 slowfaster_preds = self.video_model(
                                     inputs, inp_boxes.to("cpu")
