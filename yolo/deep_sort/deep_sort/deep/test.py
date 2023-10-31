@@ -7,7 +7,6 @@ import os
 
 from model import Net
 
-from app.utils import get_accel_device
 
 parser = argparse.ArgumentParser(description="Train on market1501")
 parser.add_argument("--data-dir", default="data", type=str)
@@ -16,8 +15,9 @@ parser.add_argument("--gpu-id", default=0, type=int)
 args = parser.parse_args()
 
 # device
-device = get_accel_device()
+device = "cpu"
 if torch.cuda.is_available() and not args.no_cuda:
+    device = "cuda"
     cudnn.benchmark = True
 
 # data loader

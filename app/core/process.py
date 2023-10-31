@@ -71,7 +71,8 @@ class AIBAProcess(YOLOStream, VisionDepth):
                         inp_boxes = torch.cat(
                             [torch.zeros(inp_boxes.shape[0], 1), inp_boxes], dim=1
                         )
-                        try:  # failback for Apple Silicon
+
+                        if torch.cuda.is_available():
                             if isinstance(inputs, list):
                                 inputs = [
                                     inp.unsqueeze(0).to(get_accel_device())
@@ -88,7 +89,7 @@ class AIBAProcess(YOLOStream, VisionDepth):
                                     get_accel_device()
                                 )
 
-                        except RuntimeError:
+                        else:
                             if isinstance(inputs, list):
                                 inputs = [inp.unsqueeze(0).to("cpu") for inp in inputs]
                             else:

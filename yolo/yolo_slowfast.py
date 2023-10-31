@@ -235,23 +235,25 @@ class YOLOStream:
 
         logger.info("[YOLO] Starting YOLO-Slowfast instance ...")
 
-        self.yolo_device = torch.device(get_accel_device())
+        if torch.cuda.is_available():
+            accel_device = "cuda"
+        else:
+            accel_device = "cpu"
+
         self.yolo_model = torch.hub.load(
             "ultralytics/yolov5",
             "yolov5s",
-            device=get_accel_device(),
-        ).to(get_accel_device())
+            device=accel_device,
+        ).to(accel_device)
         self.yolo_model.conf = self.conf
         self.yolo_model.iou = self.iou
         self.yolo_model.max_det = 100
 
         if not torch.cuda.is_available():
-            self.video_model = slowfast_r50_detection(True).eval().to("cpu")
+            self.video_model = slowfast_r50_detection(True).eval().to(accel_device)
 
         else:
-            self.video_model = (
-                slowfast_r50_detection(True).eval().to(get_accel_device())
-            )
+            self.video_model = slowfast_r50_detection(True).eval().to(accel_device)
 
         self.deepsort_tracker = DeepSort(
             "yolo/deep_sort/deep_sort/deep/checkpoint/ckpt.t7"

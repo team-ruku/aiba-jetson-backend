@@ -25,8 +25,6 @@ from pytorchvideo.models.hub import (
 
 from visualization import VideoVisualizer
 
-from app.utils import get_accel_device
-
 
 # This method takes in an image and generates the bounding boxes for people in the image.
 def get_person_bboxes(inp_img, predictor):
@@ -105,7 +103,10 @@ def ava_inference_transform(
 
 def main(args):
     # ## load slow faster model
-    device = get_accel_device()  # or 'cpu'
+    device = "cpu"
+    if torch.cuda.is_available():
+        device = "cuda"  # or 'cpu'
+
     video_model = slowfast_r50_detection(
         True
     )  # Another option is slowfast_r50_detection

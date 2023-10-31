@@ -7,13 +7,16 @@ import torchvision.transforms as transforms
 
 from .model import Net
 
-from app.utils import get_accel_device
-
 
 class Extractor(object):
     def __init__(self, model_path, use_cuda=True):
         self.net = Net(reid=True)
-        self.device = get_accel_device()
+
+        accel_device = "cpu"
+        if use_cuda and torch.cuda.is_available():
+            accel_device = "cuda"
+
+        self.device = accel_device
         state_dict = torch.load(model_path, map_location=lambda storage, loc: storage)[
             "net_dict"
         ]
