@@ -236,7 +236,7 @@ class YOLOStream:
         logger.info("[YOLO] Starting YOLO-Slowfast instance ...")
 
         if torch.cuda.is_available():
-            accel_device = "0"
+            accel_device = "cuda:0"
         else:
             accel_device = "cpu"
 
